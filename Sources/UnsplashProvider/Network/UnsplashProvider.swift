@@ -31,7 +31,7 @@ public typealias UPPhotosBlock = ([UPPhoto]?, Error?) -> Void
 public typealias UPPhotoBlock = (UPPhoto?, Error?) -> Void
 public typealias UPSearchPhotosBlock = (UPSearchResult<UPPhoto>?, Error?) -> Void
 public typealias UPSearchUsersBlock = (UPSearchResult<UPUser>?, Error?) -> Void
-public typealias UPTrackDownloadBlock = (Error?) -> Void
+public typealias UPTrackDownloadBlock = (UPURL?, Error?) -> Void
 
 public class UnsplashProvider {
     
@@ -87,13 +87,13 @@ public class UnsplashProvider {
     ///
     public func trackDownload(router: UPAPIRouter, completed: @escaping UPTrackDownloadBlock) {
         AF.request(router)
-            .publishDecodable(type: UPPhoto.self)
+            .publishDecodable(type: UPURL.self)
             .sink(receiveCompletion: { completion in
                 if case .failure(let error) = completion {
-                    completed(error)
+                    completed(nil, error)
                 }
-            }, receiveValue: { _ in
-                completed(nil)
+            }, receiveValue: { receivedValue in
+                completed(receivedValue.value, nil)
             })
             .store(in: &subscription)
     }
