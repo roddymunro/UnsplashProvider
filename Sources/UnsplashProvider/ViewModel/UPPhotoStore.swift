@@ -44,4 +44,15 @@ public class UPPhotoStore: UPStore {
             self.isLoading = false
         }
     }
+    
+    public func fetchPhoto(url: URL) {
+        self.router = UPAPIRouter.photoByUrl(url: url)
+        self.isLoading = true
+        self.provider.loadPhoto(router: self.router) { value, error in
+            if let photo = value {
+                self.photo = photo
+            }
+            self.isLoading = false
+        }
+    }
 }

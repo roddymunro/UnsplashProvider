@@ -63,6 +63,7 @@ public enum UPAPIRouter: URLRequestConvertible {
                 perPage: Int = 30,
                 orderBy: UPSort = .latest)
     case photo(id: String)
+    case photoByUrl(url: URL)
     case randomPhotos(collections: String? = nil,
                       topics: String? = nil,
                       username: String? = nil,
@@ -94,12 +95,13 @@ public enum UPAPIRouter: URLRequestConvertible {
         case .randomPhotos: return "/photos/random"
         case .searchPhotos: return "/search/photos"
         case .searchUsers: return "/search/users"
+        default: return ""
         }
     }
     
     var method: HTTPMethod {
         switch self {
-        case .photos, .photo, .randomPhotos, .searchUsers, .searchPhotos: return .get
+            case .photos, .photo, .randomPhotos, .searchUsers, .searchPhotos, .photoByUrl: return .get
         }
     }
     
@@ -110,6 +112,7 @@ public enum UPAPIRouter: URLRequestConvertible {
             params["page"]  = page
             params["per_page"] = perPage
             params["order_by"] = orderBy.rawValue
+        case .photoByUrl: return nil
         case .photo: return nil
         case let .randomPhotos(collections, topics, username, query, orientation, contentFilter, count):
             if let collections = collections { params["collections"] = collections }
@@ -140,13 +143,19 @@ public enum UPAPIRouter: URLRequestConvertible {
         guard !UPConfiguration.shared.accessKey.isEmpty else {
             fatalError("You must enter the application access key.")
         }
-        let url = baseURL.appendingPathComponent(endPoint)
+        let url: URL = {
+            if case .photoByUrl(let url) = self {
+                return url
+            } else {
+                return baseURL.appendingPathComponent(endPoint)
+            }
+        }()
         
         var request = URLRequest(url: url)
         request.method = method
         request.setValue("Client-ID \(UPConfiguration.shared.accessKey)", forHTTPHeaderField: "Authorization")
         switch self {
-        case .photos, .photo, .randomPhotos, .searchPhotos, .searchUsers:
+        case .photos, .photo, .randomPhotos, .searchPhotos, .searchUsers, .photoByUrl:
             request = try URLEncoding.default.encode(request, with: parameters)
         }
         return request
@@ -169,6 +178,8 @@ extension UPAPIRouter: CustomStringConvertible {
             value = "UPPRouter.searchPhotos(query: \(query), page: \(page), perPage: \(perPage), orderBy: \(orderBy.rawValue), collections: \(collections ?? ""), contentFilter: \(contentFilter?.rawValue ?? "nil"), color: \(color?.rawValue ?? "nli"), orientation: \(orientation?.rawValue ?? "nil"))"
         case let .searchUsers(query, page, perPage):
             value = "UPPRouter.searchUsers(query: \(query), page: \(page), perPage: \(perPage))"
+        case let .photoByUrl(url):
+                value = "UPPRouter.photoByUrl(url: \(url.absoluteString))"
         }
         return "Path: \(url), \(value)"
     }
