@@ -73,9 +73,7 @@ public class UnsplashProvider {
                     completed(nil, error)
                 }
             }, receiveValue: { receivedValue in
-                if let value = receivedValue.value {
-                    completed(value, nil)
-                }
+                completed(receivedValue.value, nil)
             })
             .store(in: &subscription)
     }
