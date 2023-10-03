@@ -26,6 +26,8 @@
 import Foundation
 #if os(iOS)
 import UIKit
+#elseif os(watchOS)
+import WatchKit
 #else
 import AppKit
 #endif
@@ -80,7 +82,9 @@ public struct UPPhotoSizeURL: Codable, Equatable {
     
     private func getScale() -> Int {
         #if os(iOS)
-            return Int(UIScreen.main.scale)
+        return Int(UIScreen.main.scale)
+        #elseif os(watchOS)
+        return Int(WKInterfaceDevice.current().screenScale)
         #else
         return Int(NSScreen.main?.backingScaleFactor ?? 1)
         #endif
