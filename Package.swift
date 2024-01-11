@@ -8,7 +8,8 @@ let package = Package(
     platforms: [
         .iOS(.v13),
         .macOS(.v11),
-        .watchOS(.v10)
+        .watchOS(.v10),
+		.visionOS(.v1)
     ],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
@@ -17,7 +18,7 @@ let package = Package(
             targets: ["UnsplashProvider"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/Alamofire/Alamofire.git", from: "5.4.4")
+        .package(url: "https://github.com/Alamofire/Alamofire.git", from: "5.8.1")
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
